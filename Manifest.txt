@@ -3,6 +3,9 @@ History.txt
 Manifest.txt
 README.txt
 Rakefile
+tmp/development
+tmp/production
+tmp/staging
 bin/surehire_daemonizer
 lib/surehire_daemonizer.rb
 lib/surehire_daemonizer/version.rb

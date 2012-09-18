@@ -69,13 +69,15 @@ Forever.run do
     puts "Error: #{e.message}"
     puts "%s\n  %s" % [e.message, e.backtrace.join("\n  ")]
     
-    Mail.deliver do
-      delivery_method :sendmail, :location => `which sendmail`.chomp
-      to      "dipesh.gautam@cloudfactory.com"
-      from    "failures@results.surehire.ca"
-      subject "[Daemon has Failed] #{e.message}"
-      body    "%s\n  %s" % [e.message, e.backtrace.join("\n  ")]
-    end
+    Pony.mail({
+      from: 'failures@results.surehire.ca'
+      to: 'dipeshgtm@cloudfactory.com',
+      via: :sendmail,
+      cc: 'sarwagya@cloudfactory.com',
+      subject: "[Daemon has Failed] #{e.message}",
+      body: "%s\n  %s" % [e.message, e.backtrace.join("\n  ")]
+    })
+
   end
 
   on_exit do
