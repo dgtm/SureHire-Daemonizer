@@ -17,9 +17,10 @@ module SurehireDaemonizer
   class << self
 
     def poll_for_cutoff
-      url = "#{$configured['host']}/notifications/cutoff/"
+      url = "#{$configured[:host]}/notifications/cutoff/"
       begin
         response = Net::HTTP.get_response(URI.parse(url))
+        puts "Response: #{response.code}"
         raise unless response.code == "200"
       rescue Exception => e
         raise e
@@ -29,9 +30,10 @@ module SurehireDaemonizer
     end
 
     def track_jobs
-      url = "#{$configured['host']}/notifications/track/"
+      url = "#{$configured[:host]}/notifications/track/"
       begin
         response = Net::HTTP.get_response(URI.parse(url))
+        puts "Response: #{response.code}"
         raise unless response.code == "200"
       rescue Exception => e
         raise e
@@ -44,6 +46,7 @@ module SurehireDaemonizer
       url = "http://surewireu.surehire.ca/sync-databases/"
       begin
         response = Net::HTTP.get_response(URI.parse(url))
+        puts "Response: #{response.code}"
         raise unless response.code == "200"
       rescue Exception => e
         raise
@@ -76,9 +79,10 @@ module SurehireDaemonizer
 
     # Create/Update the local Database unless false is returned as a response #
     def update_from_wire
-      url = "#{$configured['host']}/notifications/wire_updates/"
+      url = "#{$configured[:host]}/notifications/wire_updates/"
       begin
         response = Net::HTTP.get_response(URI.parse(url))
+        puts "Response: #{response.code}"
         raise unless response.code == "200"
       rescue Exception => e
         raise e

@@ -30,42 +30,40 @@ Forever.run do
     $configured = case ENV['RAILS_ENV']
     when "production"
         {
-    	  host: "results.surehire.ca",
+    	  host: "http://results.surehire.ca",
     	  post: "surewire.surehire.ca"
         }
 	  when "staging"
 	     {
-	     	host: "staging.results.surehire.ca",
+	     	host: "http://staging.results.surehire.ca",
 	     	post: "surewireu.surehire.ca"
 	     }
 	  when "development"
 	     {
-	     	host: "loclhost:3000",
+	     	host: "http://localhost:3000",
 	     	post: "surewireu.surehire.ca"
 	     }
 	  else
 	   	{}
 	  end
-	
+
     rescue Exception => e
       puts "Error: #{e.message}"
       puts "%s\n  %s" % [e.message, e.backtrace.join("\n  ")]
     end
   end
   
-  # every 240.minutes do #, :at => "#{Time.now.hour}:#{Time.now.min+1}" do
-  #   SurehireDaemonizer.update_from_wire
-  # end
-
-  every 2.seconds do
-  # every 5.minutes do
-  	puts renv
-    # SurehireDaemonizer.poll_for_cutoff
+  every 240.minutes do #, :at => "#{Time.now.hour}:#{Time.now.min+1}" do
+    SurehireDaemonizer.update_from_wire
   end
 
-  # every 20.minutes do
-  #   SurehireDaemonizer.track_jobs
-  # end
+  every 10.minutes do
+    SurehireDaemonizer.poll_for_cutoff
+  end
+
+  every 20.minutes do
+    SurehireDaemonizer.track_jobs
+  end
 
   on_error do |e|
     puts "Error: #{e.message}"
