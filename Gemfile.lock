@@ -1,0 +1,10 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    forever (0.1.4)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  forever

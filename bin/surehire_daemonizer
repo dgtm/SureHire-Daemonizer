@@ -1,0 +1,86 @@
+#!/usr/bin/env ruby
+# encoding: UTF-8
+
+$:.unshift File.expand_path('../../lib', __FILE__)
+require 'rubygems' unless defined?(Gem)
+require 'forever'
+require 'surehire_daemonizer'
+
+Forever.run do
+
+
+	renv = "#{ENV['RAILS_ENV']}"
+
+  # pid  File.expand_path("../../tmp/pids/#{renv}",__FILE__)
+  dir  File.expand_path("../../tmp/#{renv}", __FILE__)
+  ##
+  # You can set these values:
+  #
+  # dir  "foo"     # Default: File.expand_path('../../', __FILE__)
+  # file "bar"     # Default: __FILE__
+  # log  "bar.log" # Default: File.expand_path(dir, '/log/[file_name].log')
+  # pid  "bar.pid" # Default: File.expand_path(dir, '/tmp/[file_name].pid')
+  #
+  
+  before :all do
+    begin
+
+    ENV['RAILS_ENV'] ||= "production"
+
+    $configured = case ENV['RAILS_ENV']
+    when "production"
+        {
+    	  host: "results.surehire.ca",
+    	  post: "surewire.surehire.ca"
+        }
+	  when "staging"
+	     {
+	     	host: "staging.results.surehire.ca",
+	     	post: "surewireu.surehire.ca"
+	     }
+	  when "development"
+	     {
+	     	host: "loclhost:3000",
+	     	post: "surewireu.surehire.ca"
+	     }
+	  else
+	   	{}
+	  end
+	
+    rescue Exception => e
+      puts "Error: #{e.message}"
+      puts "%s\n  %s" % [e.message, e.backtrace.join("\n  ")]
+    end
+  end
+  
+  # every 240.minutes do #, :at => "#{Time.now.hour}:#{Time.now.min+1}" do
+  #   SurehireDaemonizer.update_from_wire
+  # end
+
+  every 2.seconds do
+  # every 5.minutes do
+  	puts renv
+    # SurehireDaemonizer.poll_for_cutoff
+  end
+
+  # every 20.minutes do
+  #   SurehireDaemonizer.track_jobs
+  # end
+
+  on_error do |e|
+    puts "Error: #{e.message}"
+    puts "%s\n  %s" % [e.message, e.backtrace.join("\n  ")]
+    
+    Mail.deliver do
+      delivery_method :sendmail, :location => `which sendmail`.chomp
+      to      "dipesh.gautam@cloudfactory.com"
+      from    "failures@results.surehire.ca"
+      subject "[Daemon has Failed] #{e.message}"
+      body    "%s\n  %s" % [e.message, e.backtrace.join("\n  ")]
+    end
+  end
+
+  on_exit do
+    puts "Bye bye"
+  end  
+end
