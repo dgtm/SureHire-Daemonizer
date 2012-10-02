@@ -1,15 +1,15 @@
 #!/usr/bin/env ruby
 # encoding: UTF-8
 
+ENV['BUNDLE_GEMFILE'] = File.expand_path('../../Gemfile', __FILE__)
 $:.unshift File.expand_path('../../lib', __FILE__)
 require 'rubygems' unless defined?(Gem)
 require 'forever'
 require 'surehire_daemonizer'
-
+require 'mail'
 Forever.run do
 
-
-	renv = "#{ENV['RAILS_ENV']}"
+  renv = "#{ENV['RAILS_ENV']}"
 
   # pid  File.expand_path("../../tmp/pids/#{renv}",__FILE__)
   dir  File.expand_path("../../tmp/#{renv}", __FILE__)
@@ -30,22 +30,22 @@ Forever.run do
     $configured = case ENV['RAILS_ENV']
     when "production"
         {
-    	  host: "http://results.surehire.ca",
-    	  post: "surewire.surehire.ca"
+        host: "http://results.surehire.ca",
+        post: "surewire.surehire.ca"
         }
-	  when "staging"
-	     {
-	     	host: "http://staging.results.surehire.ca",
-	     	post: "surewireu.surehire.ca"
-	     }
-	  when "development"
-	     {
-	     	host: "http://localhost:3000",
-	     	post: "surewireu.surehire.ca"
-	     }
-	  else
-	   	{}
-	  end
+    when "staging"
+       {
+        host: "http://staging.results.surehire.ca",
+        post: "surewireu.surehire.ca"
+       }
+    when "development"
+       {
+        host: "http://localhost:3000",
+        post: "surewireu.surehire.ca"
+       }
+    else
+      {}
+    end
 
     rescue Exception => e
       puts "Error: #{e.message}"
@@ -69,15 +69,13 @@ Forever.run do
     puts "Error: #{e.message}"
     puts "%s\n  %s" % [e.message, e.backtrace.join("\n  ")]
     
-    Pony.mail({
-      from: 'failures@results.surehire.ca'
-      to: 'dipeshgtm@cloudfactory.com',
-      via: :sendmail,
-      cc: 'sarwagya@cloudfactory.com',
-      subject: "[Daemon has Failed] #{e.message}",
-      body: "%s\n  %s" % [e.message, e.backtrace.join("\n  ")]
-    })
-
+    Mail.deliver do
+      delivery_method :sendmail, :location => `which sendmail`.chomp
+      to      "dipesh.gautam@cloudfactory.com"
+      from    "results@surehire.mailgun.org"
+      subject "[SH Daemon Watcher] #{e.message}"
+      body    "%s\n  %s" % [e.message, e.backtrace.join("\n  ")]
+    end
   end
 
   on_exit do
