@@ -77,6 +77,19 @@ module SurehireDaemonizer
       result
     end
 
+    def send_geckoboard_updates
+      url = "#{$configured[:host]}/notifications/geckoboard_updates/"
+      begin
+        response = Net::HTTP.get_response(URI.parse(url))
+        puts "Response: #{response.code}"
+        raise unless response.code == "200"
+      rescue Exception => e
+        raise e
+      else
+        true
+      end
+    end
+
     # Create/Update the local Database unless false is returned as a response #
     def update_from_wire
       url = "#{$configured[:host]}/notifications/wire_updates/"

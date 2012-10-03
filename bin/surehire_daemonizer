@@ -65,6 +65,10 @@ Forever.run do
     SurehireDaemonizer.track_jobs
   end
 
+  every 2.minutes do
+    SurehireDaemonizer.send_geckoboard_updates
+  end
+
   on_error do |e|
     puts "Error: #{e.message}"
     puts "%s\n  %s" % [e.message, e.backtrace.join("\n  ")]
