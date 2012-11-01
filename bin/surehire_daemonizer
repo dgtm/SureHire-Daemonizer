@@ -68,6 +68,10 @@ Forever.run do
   every 2.minutes do
     SurehireDaemonizer.send_geckoboard_updates
   end
+  
+  every 1.day do
+    SurehireDaemonizer.clean_up
+  end
 
   on_error do |e|
     puts "Error: #{e.message}"

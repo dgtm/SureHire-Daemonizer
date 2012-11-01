@@ -16,6 +16,19 @@ module SurehireDaemonizer
 
   class << self
 
+    def clean_up
+      url = "#{$configured[:host]}/api/clean_up.json"
+      begin
+        response = Net::HTTP.get_response(URI.parse(url))
+        puts "Response: #{response.code}"
+        raise unless response.code == "200"
+      rescue Exception => e
+        raise e
+      else
+        true
+      end
+    end
+    
     def poll_for_cutoff
       url = "#{$configured[:host]}/notifications/cutoff/"
       begin
