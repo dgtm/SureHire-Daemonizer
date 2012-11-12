@@ -1,3 +1,5 @@
+require "bundler/capistrano"
+
 set :application, "SureHire-Daemonizer"
 set :repository,  "git@github.com:dgtm/SureHire-Daemonizer.git"
 
@@ -24,7 +26,7 @@ set :scm_username, 'sprout-deploy'
     end
 
     task :restart do
-    	run "foreverb stop --all -y"
+    	run "cd #{current_release}; bundle; foreverb stop --all -y"
     end
   end
 
