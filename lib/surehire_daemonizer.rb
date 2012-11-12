@@ -43,7 +43,7 @@ module SurehireDaemonizer
     end
 
     def delete_splits
-      url = "#{$configured[:host]}/notifications/remove/"
+      url = "#{$configured[:host]}/notifications/remove_splits/"
       begin
         response = Net::HTTP.get_response(URI.parse(url))
         puts "Response: #{response.code}"

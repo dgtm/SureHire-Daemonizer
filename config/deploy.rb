@@ -26,7 +26,7 @@ set :scm_username, 'sprout-deploy'
     end
 
     task :restart do
-    	run "cd #{current_release}; bundle; foreverb stop --all -y"
+    	run "cd #{current_release}; foreverb stop --all -y"
     end
   end
 
