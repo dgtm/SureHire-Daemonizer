@@ -1,4 +1,5 @@
 source :rubygems
 
-gem 'forever'
+gem 'foreverb'
 gem 'pony'
+gem 'capistrano'
