@@ -73,6 +73,10 @@ Forever.run do
     SurehireDaemonizer.clean_up
   end
 
+  every 1.day , :at => "07:00" do
+    SurehireDaemonizer.delete_splits
+  end
+
   on_error do |e|
     puts "Error: #{e.message}"
     puts "%s\n  %s" % [e.message, e.backtrace.join("\n  ")]

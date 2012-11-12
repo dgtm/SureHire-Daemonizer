@@ -42,6 +42,19 @@ module SurehireDaemonizer
       end
     end
 
+    def delete_splits
+      url = "#{$configured[:host]}/notifications/remove/"
+      begin
+        response = Net::HTTP.get_response(URI.parse(url))
+        puts "Response: #{response.code}"
+        raise unless response.code == "200"
+      rescue Exception => e
+        raise e
+      else
+        true
+      end
+    end
+
     def track_jobs
       url = "#{$configured[:host]}/notifications/track/"
       begin
