@@ -6,7 +6,7 @@ $:.unshift File.expand_path('../../lib', __FILE__)
 require 'rubygems' unless defined?(Gem)
 require 'forever'
 require 'surehire_daemonizer'
-require 'mail'
+require 'pony'
 Forever.run do
 
   renv = "#{ENV['RAILS_ENV']}"
@@ -69,9 +69,9 @@ Forever.run do
     SurehireDaemonizer.send_geckoboard_updates
   end
   
-  every 1.day , :at => "06:00" do
-    SurehireDaemonizer.clean_up
-  end
+  # every 1.day , :at => "06:00" do
+  #   SurehireDaemonizer.clean_up
+  # end
 
   every 1.day , :at => "07:00" do
     SurehireDaemonizer.delete_splits
@@ -80,14 +80,24 @@ Forever.run do
   on_error do |e|
     puts "Error: #{e.message}"
     puts "%s\n  %s" % [e.message, e.backtrace.join("\n  ")]
-    
-    Mail.deliver do
-      delivery_method :sendmail, :location => `which sendmail`.chomp
-      to      "dipesh.gautam@cloudfactory.com"
-      from    "results@surehire.mailgun.org"
-      subject "[SH Daemon Watcher] #{e.message}"
-      body    "%s\n  %s" % [e.message, e.backtrace.join("\n  ")]
-    end
+    Pony.mail({
+        :to => 'dipesh.gautam@cloudfactory.com',
+        :cc => 'sarwagya@cloudfactory.com',
+        :via => :sendmail,
+        :via_options => {
+            :location  => "#{`which sendmail`.chomp}", # defaults to 'which sendmail' or '/usr/sbin/sendmail' if 'which' fails
+            :arguments => '-t' # -t and -i are the defaults
+        },
+        :subject => "[SH Daemon Watcher] #{e.message}",
+        :body => "%s\n  %s" % [e.message, e.backtrace.join("\n  ")]
+    })
+    # Mail.deliver do
+    #   delivery_method :sendmail, :location => `which sendmail`.chomp
+    #   to      "dipesh.gautam@cloudfactory.com"
+    #   from    "results@surehire.mailgun.org"
+    #   subject "[SH Daemon Watcher] #{e.message}"
+    #   body    "%s\n  %s" % [e.message, e.backtrace.join("\n  ")]
+    # end
   end
 
   on_exit do
