@@ -55,6 +55,32 @@ module SurehireDaemonizer
       end
     end
 
+    def delete_pdfs
+      url = "#{$configured[:host]}/notifications/remove_pdfs/"
+      begin
+        response = Net::HTTP.get_response(URI.parse(url))
+        puts "Deleting PDFs :: Response: #{response.code}"
+        raise unless response.code == "200"
+      rescue Exception => e
+        raise e
+      else
+        true
+      end
+    end
+
+    def delete_pages
+      url = "#{$configured[:host]}/notifications/remove_pages/"
+      begin
+        response = Net::HTTP.get_response(URI.parse(url))
+        puts "Deleting Pages :: Response: #{response.code}"
+        raise unless response.code == "200"
+      rescue Exception => e
+        raise e
+      else
+        true
+      end
+    end
+
     def track_jobs
       url = "#{$configured[:host]}/notifications/track/"
       begin

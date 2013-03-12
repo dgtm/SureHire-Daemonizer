@@ -7,6 +7,7 @@ require 'rubygems' unless defined?(Gem)
 require 'forever'
 require 'surehire_daemonizer'
 require 'pony'
+require 'mail'
 Forever.run do
 
   renv = "#{ENV['RAILS_ENV']}"
@@ -61,9 +62,9 @@ Forever.run do
     SurehireDaemonizer.poll_for_cutoff
   end
 
-  every 20.minutes do
-    SurehireDaemonizer.track_jobs
-  end
+#  every 20.minutes do
+ #   SurehireDaemonizer.track_jobs
+#  end
 
   every 2.minutes do
     SurehireDaemonizer.send_geckoboard_updates
@@ -77,27 +78,35 @@ Forever.run do
     SurehireDaemonizer.delete_splits
   end
 
+  every 1.day , :at => "02:00" do
+    SurehireDaemonizer.delete_pdfs
+  end
+
+  every 1.day , :at => "03:00" do
+    SurehireDaemonizer.delete_pages
+  end
+
   on_error do |e|
     puts "Error: #{e.message}"
     puts "%s\n  %s" % [e.message, e.backtrace.join("\n  ")]
-    Pony.mail({
-        :to => 'dipesh.gautam@cloudfactory.com',
-        :cc => 'sarwagya@cloudfactory.com',
-        :via => :sendmail,
-        :via_options => {
-            :location  => "#{`which sendmail`.chomp}", # defaults to 'which sendmail' or '/usr/sbin/sendmail' if 'which' fails
-            :arguments => '-t' # -t and -i are the defaults
-        },
-        :subject => "[SH Daemon Watcher] #{e.message}",
-        :body => "%s\n  %s" % [e.message, e.backtrace.join("\n  ")]
-    })
-    # Mail.deliver do
-    #   delivery_method :sendmail, :location => `which sendmail`.chomp
-    #   to      "dipesh.gautam@cloudfactory.com"
-    #   from    "results@surehire.mailgun.org"
-    #   subject "[SH Daemon Watcher] #{e.message}"
-    #   body    "%s\n  %s" % [e.message, e.backtrace.join("\n  ")]
-    # end
+#    Pony.mail({
+#        :to => 'dipesh.gautam@cloudfactory.com',
+#        :cc => 'sarwagya@cloudfactory.com',
+#        :via => :sendmail,
+#        :via_options => {
+#            :location  => "#{`which sendmail`.chomp}", # defaults to 'which sendmail' or '/usr/sbin/sendmail' if 'which' fails
+#            :arguments => '-t' # -t and -i are the defaults
+#        },
+#        :subject => "[SH Daemon Watcher] #{e.message}",
+#        :body => "%s\n  %s" % [e.message, e.backtrace.join("\n  ")]
+#    })
+     Mail.deliver do
+       delivery_method :sendmail, :location => `which sendmail`.chomp
+       to      "dipesh.gautam@cloudfactory.com"
+       from    "results@surehire.mailgun.org"
+       subject "[SH Daemon Watcher] #{e.message}"
+       body    "%s\n  %s" % [e.message, e.backtrace.join("\n  ")]
+     end
   end
 
   on_exit do
