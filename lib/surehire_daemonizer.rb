@@ -68,6 +68,19 @@ module SurehireDaemonizer
       end
     end
 
+    def delete_converted_folders
+      url = "#{$configured[:host]}/notifications/remove_empty_converted_folders/"
+      begin
+        response = Net::HTTP.get_response(URI.parse(url))
+        puts "Deleting Pages :: Response: #{response.code}"
+        raise unless response.code == "200"
+      rescue Exception => e
+        raise e
+      else
+        true
+      end      
+    end
+
     def delete_pages
       url = "#{$configured[:host]}/notifications/remove_pages/"
       begin

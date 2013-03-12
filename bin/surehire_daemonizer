@@ -86,6 +86,9 @@ Forever.run do
     SurehireDaemonizer.delete_pages
   end
 
+  every 1.day , :at => "03:10" do
+    SurehireDaemonizer.delete_converted_folders
+  end
   on_error do |e|
     puts "Error: #{e.message}"
     puts "%s\n  %s" % [e.message, e.backtrace.join("\n  ")]
